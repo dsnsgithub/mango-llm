@@ -45,8 +45,11 @@ embedding_table_dimensions = 3
 embedding_table = np.random.randn(len(tokens), embedding_table_dimensions)
 # print("embedding_table: ", embedding_table)
 
-# 3. feed the token's vector through the first layer in the neural network
+# calculate token vector 
+token_vector = embedding_table[token_id] # dog's vector
 
+
+# 3. feed the token's vector through the first layer in the neural network
 # this layer has 6 neurons in it
 neuron_count_per_layer = 6
 
@@ -62,8 +65,32 @@ weights = np.random.randn(embedding_table_dimensions, neuron_count_per_layer)
 
 biases = np.zeros(neuron_count_per_layer)  
 
-print("biases: ", biases)
+# print("biases: ", biases)
 # one for each neuron
 # [0. 0. 0. 0. 0. 0.]
 
 
+# dot product of the token's vector and the weights, plus the biases
+#  remember: [0.3, 0.8, 0.2],   ← dog's vector
+
+
+# dog's vector * weight of one neuron (neuron 0)
+# [0.3, 0.8, 0.2] * [2.23063535, 1.04338873, -1.62763605]
+
+# = [0.66919065 + 2.23063535, 0.83471104 + 1.04338873, -0.32552321 + -1.62763605]
+# = 2.89982600 + 1.87810077 + -1.95315926
+# = 2.82476751
+
+# we can add the bias at the end
+# [0.66919065, 0.83471104, -0.32552321] + [0. 0. 0.]
+# = [0.66919065 + 0.83471104, -0.32552321]
+
+hidden = token_vector @ weights + biases
+
+print(hidden)
+# to get
+# [ 0.21229329  2.42604507  0.74730637 -0.25485492  1.71134296 -2.87505096]
+
+relu_activation = np.maximum(0, hidden)
+
+print(relu_activation)
