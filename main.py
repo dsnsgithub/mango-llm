@@ -11,8 +11,7 @@ tokens = {
     "queen": 3,
 }
 
-token_id = tokens["dog"] # token_id = 2
-
+token_id = tokens["dog"] # token_id = 1
 
 # 2. create an embedding table
 # we need to turn a token into a vector of numbers
@@ -77,20 +76,138 @@ biases = np.zeros(neuron_count_per_layer)
 # dog's vector * weight of one neuron (neuron 0)
 # [0.3, 0.8, 0.2] * [2.23063535, 1.04338873, -1.62763605]
 
-# = [0.66919065 + 2.23063535, 0.83471104 + 1.04338873, -0.32552321 + -1.62763605]
-# = 2.89982600 + 1.87810077 + -1.95315926
-# = 2.82476751
+# dot product of the token's vector and the weights, plus the biases
+# [0.3, 0.8, 0.2] * [2.23063535, 1.04338873, -1.62763605] + [0. 0. 0.]
+# = [0.3 * 2.23063535 + 0.8 * 1.04338873 + 0.2 * -1.62763605] + [0. 0. 0.]
+# = [0.66919065 + 0.83471104 - 0.32552321] + [0. 0. 0.]
+# = [1.17837848] + [0. 0. 0.]
+# = [1.17837848]
+
+# do the same for the other 5 neurons
 
 # we can add the bias at the end
-# [0.66919065, 0.83471104, -0.32552321] + [0. 0. 0.]
-# = [0.66919065 + 0.83471104, -0.32552321]
+# [1.17837848, ..., ...] + [0. 0. 0. ...]
+# each of these vectors have 6 numbers in them
 
-hidden = token_vector @ weights + biases
+# @ is the matrix multiplication operator
+pre_relu = np.dot(token_vector, weights) + biases
 
-print(hidden)
+print(pre_relu)
 # to get
-# [ 0.21229329  2.42604507  0.74730637 -0.25485492  1.71134296 -2.87505096]
+# [ 1.17837848  ... ]
 
-relu_activation = np.maximum(0, hidden)
 
+# pass through ReLU activation function, all negative values are set to 0
+relu_activation = np.maximum(0, pre_relu)
 print(relu_activation)
+
+
+# 4. feed the output through the second outputlayer in the neural network
+
+# four output neurons, one for each token
+
+# each neuron has 6 weights this time, since there were 6 neurons in the previous layer
+# one weight for each input a neuron receives
+
+
+# weights for the output layer
+weights_out = np.random.randn(6, 4)
+# biases for the output layer
+biases_out = np.zeros(4)
+
+print("weights_out: ", weights_out)
+print("biases_out: ", biases_out)
+
+
+# the output neurons don't have a ReLU activation function, they are just the raw scores
+# this will allow softmax to work properly
+output = np.dot(relu_activation, weights_out) + biases_out
+
+def softmax(scores):
+    # subtract the max for numerical stability (prevents huge numbers)
+    e = np.exp(scores - np.max(scores))
+    return e / e.sum()
+
+print("output: ", output)
+
+output = softmax(output)
+
+print("softmax output: ", output)
+
+# find the token id (column) with the highest score
+predicted_token_id = np.argmax(output)
+print("predicted_token", predicted_token_id)
+print("predicted word", list(tokens.keys())[predicted_token_id])
+
+
+# lets say the correct word is "cat"
+loss = -np.log(output[tokens["cat"]])
+
+# this is the "cross entropy loss", using log to punish low probability predictions harder
+print(loss)
+
+
+# make a copy, we are about to do backpropagation, and we don't want to modify the original output
+scores_copy = output.copy()
+
+# we need to subtract 1 the score/probability for the correct word 
+# this is because we are saying the probability of this word should be higher (since the result will be negative)
+# for the other words, we are saying the probability should be lower (since the result will be positive)
+scores_copy[tokens["cat"]] -= 1
+
+
+
+# so we have a list of scores (which is just probabilities of the words with the correct word subtracted by 1)
+# now we can figure out how much the weight of the previous layer contributed to the score by multiplying the score by the weight
+
+# hidden   = [h0, h1, h2, h3, h4, h5]      # 6 numbers
+# scores = [s0, s1, s2, s3]              # 4 numbers
+
+#         s0       s1       s2       s3
+# h0  [h0*s0,  h0*s1,  h0*s2,  h0*s3]
+# h1  [h1*s0,  h1*s1,  h1*s2,  h1*s3]
+# h2  [h2*s0,  h2*s1,  h2*s2,  h2*s3]
+# h3  [h3*s0,  h3*s1,  h3*s2,  h3*s3]
+# h4  [h4*s0,  h4*s1,  h4*s2,  h4*s3]
+# h5  [h5*s0,  h5*s1,  h5*s2,  h5*s3]
+
+d_W_out = np.outer(relu_activation, scores_copy)
+
+print("d_W_out: ", d_W_out)
+
+
+# the bias always contributes 100% to the score (there is no multiplier, it is a constant add/subtract)
+# so the gradient would just be the scores_copy
+
+d_B_out = scores_copy
+
+# we transpose the weights_out matrix so we can multiply it by the d_W_out matrix
+# this will give us the gradient of the first layer weights and biases
+
+
+# we can't just use d_hidden
+# how much did each neuron contribute to the final error
+d_hidden = np.dot(scores_copy, weights_out.T)
+print("d_hidden: ", d_hidden)
+
+# we need to use the pre_relu matrix from before to figure out how much the weights of the previous layer contributed to the score
+d_pre_relu = d_hidden * (pre_relu > 0) # set the gradient to 0 for negative values, as they didn't contribute anything to the score as the neuron didn't fire
+print("d_pre_relu: ", d_pre_relu)
+
+# reconstruct the weights matrix (with derivative error) from the token's vector and the neurons' errors
+d_W = np.outer(token_vector, d_pre_relu)
+
+print("d_W: ", d_W)
+
+learning_rate = 0.01
+
+# we can update the weights and biases based on the gradient
+weights_out -= learning_rate * d_W_out
+biases_out  -= learning_rate * d_B_out
+weights     -= learning_rate * d_W
+biases      -= learning_rate * d_pre_relu
+
+# how much did the token's vector contribute to each neuron in the first layer's error
+d_embedding_table = np.dot(d_pre_relu, weights.T)
+embedding_table[token_id] -= learning_rate * d_embedding_table
+
