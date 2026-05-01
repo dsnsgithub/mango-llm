@@ -95,12 +95,23 @@ class LLM(nn.Module):
         
         return torch.softmax(x, dim=-1)
     
-token_input = ["this", "was"]
-token_ids = torch.tensor([token_to_index_map[word] for word in token_input])
-
 model = LLM(EMBEDDING_DIMENSIONS, MAX_LENGTH).to(device)
-output: torch.Tensor = model(token_ids)
 
-next_token_index = output.argmax().item()
-print("Input text:", token_input)
-print("Next token:", index_to_token_map[next_token_index])
+def test():
+    token_input = ["this", "was"]
+    token_ids = torch.tensor([token_to_index_map[word] for word in token_input])
+    output: torch.Tensor = model(token_ids)
+
+    next_token_index = output.argmax().item()
+    print("Input text:", token_input)
+    print("Next token:", index_to_token_map[next_token_index])
+
+def train():
+    first_story_tokens = list_tokens(dataset[0])[:15]
+
+    for i in range(1, len(first_story_tokens)):
+        input_tokens = first_story_tokens[:i]
+        print(input_tokens)
+
+train()
+# test()
