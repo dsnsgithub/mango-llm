@@ -7,7 +7,7 @@ Goal: Create a LLM that can produce English text using training (initially from 
 ## Requirements
 
 - Python **3.13+**
-- Dependencies: `torch`, `datasets` (see [`pyproject.toml`](pyproject.toml))
+- Dependencies: `torch`, `pandas` (see [`pyproject.toml`](pyproject.toml))
 
 On Linux and Windows, `pyproject.toml` pins PyTorch to the **CUDA 12.4** wheel index where applicable; adjust or remove `[[tool.uv.index]]` / `[tool.uv.sources]` if you want CPU-only or a different CUDA build.
 
@@ -38,4 +38,4 @@ python main.py
 | Path | Role |
 |------|------|
 | `main.py` | Current PyTorch experiment |
-| `numpy-old/` | Older NumPy / PyTorch experiments (not required by `main.py`) |
+| `old/` | Older NumPy / PyTorch experiments (not required by `main.py`) |
