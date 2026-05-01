@@ -1,14 +1,14 @@
+import datasets
+
 import torch
 import torch.nn as nn
-
-import datasets
 import re
 
 
 ## PYTORCH  -----------------------------------------------
 device = torch.accelerator.current_accelerator().type if torch.accelerator.is_available() else "cpu"
 torch.random.manual_seed(seed=17)
-
+print(device)
 
 ## LLM CONSTANTS -----------------------------------------------
 EMBEDDING_DIMENSIONS = 5
@@ -40,6 +40,18 @@ class Embedding(nn.Module):
     def forward(self, x):
         # returns the rows in the matrix that are actually needed
         return self.weights[x]
+
+
+class Attention(nn.Module):
+    def __init__(self, head_count: int, embedding_dimensions: int):
+        super().__init__()
+
+        self.W_q = nn.Parameter(torch.randn(embedding_dimensions, embedding_dimensions))
+        self.W_k = nn.Parameter(torch.randn(embedding_dimensions, embedding_dimensions))
+        self.W_v = nn.Parameter(torch.randn(embedding_dimensions, embedding_dimensions))
+
+    def forward(self, x):
+        return x
 
 
 class LLM(nn.Module):
