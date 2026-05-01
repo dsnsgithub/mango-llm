@@ -12,12 +12,12 @@ torch.random.manual_seed(seed=17)
 
 ## LLM CONSTANTS -----------------------------------------------
 EMBEDDING_DIMENSIONS = 5
-
+MAX_LENGTH = 12
 
 ## DATASET PARSING -----------------------------------------------
 dataset = datasets.load_dataset("roneneldan/TinyStories", split="train[:10]")
 
-def list_tokens(string):
+def list_tokens(string): # turns "This is a test." into {"this", "is", "a", "test", "."}
     return re.findall(r"\w+|[^\w\s]", string.lower())
 
 vocab = set() # {'heard', 'celebrated', 'that', 'again', 'stopped'... }
@@ -38,10 +38,33 @@ class Embedding(nn.Module):
         self.weights = nn.Parameter(torch.randn(vocab_length, embedding_dimensions))
 
     def forward(self, x):
+        # returns the rows in the matrix that are actually needed
         return self.weights[x]
 
-embedding_table = Embedding(len(vocab), 5)
-tokens = [token_mapping["this"], token_mapping["was"]]
 
-print(tokens)
-print(embedding_table(torch.tensor(tokens)))
+class LLM(nn.Module):
+    def __init__(self, EMBEDDING_DIMENSIONS, MAX_LENGTH):
+        super().__init__()
+
+        self.token_embedding_table = Embedding(len(vocab), EMBEDDING_DIMENSIONS)
+        self.positional_embedding_table = Embedding(MAX_LENGTH, EMBEDDING_DIMENSIONS) # each row index is what is applied depending on where it is in the input
+        self.positions = torch.arange(len(token_input))
+
+        self.layers = nn.ModuleList([
+        ])
+
+    def forward(self, token_ids):
+        x = self.token_embedding_table(token_ids) + self.positional_embedding_table(self.positions)
+
+        for layer in self.layers:
+            x = layer(x)
+        
+        return x
+    
+token_input = ["this", "was"]
+token_ids = torch.tensor([token_mapping[word] for word in token_input])
+
+model = LLM(EMBEDDING_DIMENSIONS, MAX_LENGTH)
+output = model(token_ids)
+
+print(output)
