@@ -102,7 +102,7 @@ def test():
     token_ids = torch.tensor([token_to_index_map[word] for word in token_input])
     output: torch.Tensor = model(token_ids)
 
-    next_token_index = output.argmax().item()
+    next_token_index = int(output.argmax().item())
     print("Input text:", token_input)
     print("Next token:", index_to_token_map[next_token_index])
 

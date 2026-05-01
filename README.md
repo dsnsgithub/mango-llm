@@ -15,8 +15,8 @@ On Linux and Windows, `pyproject.toml` pins PyTorch to the **CUDA 12.4** wheel i
 
 To train, download the required datasets from Kaggle:
 
-`dataset/TinyStories`: Download `train.csv` and `validation.csv`.
-https://www.kaggle.com/datasets/thedevastator/tinystories-narrative-classification/data
+Create directory `./dataset/TinyStories`: Download `train.csv` and `validation.csv` and place in this directory.
+Link: https://www.kaggle.com/datasets/thedevastator/tinystories-narrative-classification/data
 
 ---
 
