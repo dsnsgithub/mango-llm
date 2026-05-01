@@ -1,8 +1,4 @@
 import torch
 
-device = (
-    torch.accelerator.current_accelerator().type
-    if torch.accelerator.is_available()
-    else "cpu"
-)
-print(device)
+device = torch.accelerator.current_accelerator().type if torch.accelerator.is_available() else "cpu"
+print("Pytorch Accelerator: ", device)

@@ -10,7 +10,7 @@ import re
 ## PYTORCH  -----------------------------------------------
 device = torch.accelerator.current_accelerator().type if torch.accelerator.is_available() else "cpu"
 torch.random.manual_seed(seed=17)
-print(device)
+print("Pytorch Accelerator: ", device)
 
 ## LLM CONSTANTS -----------------------------------------------
 EMBEDDING_DIMENSIONS = 5
@@ -66,6 +66,8 @@ class Attention(nn.Module):
 
         scores = scores_before_mask.masked_fill(mask, float("-inf"))
         weights = torch.softmax(scores, dim=-1)
+
+        # weights:
         #          "this"   "was"
         # "this" [  1.0,    0.0  ]   ← how much "this" attends to each token
         # "was"  [  0.27,    0.73  ]   ← how much "was" attends to each token

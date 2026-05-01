@@ -24,10 +24,10 @@ With [uv](https://docs.astral.sh/uv/) (recommended given the project config):
 
 ```bash
 uv sync
-uv run python main.py
+uv run main.py
 ```
 
-Or with any environment where `torch` and `datasets` are installed:
+Or with any environment where `torch` and `pandas` are installed:
 
 ```bash
 python main.py
