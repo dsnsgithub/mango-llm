@@ -1,14 +1,8 @@
 # LLM
 
-**Work in progress.** Goal: grow this into a **full transformer LLM** in PyTorch (training, inference, sensible tokenizer and architecture), then **scale exposure to the web** (API, hosting, and whatever serving stack fits). The repository will evolve toward that; the notes below describe what exists today.
+**Work in progress.**
 
-
-### What it does today
-
-- Loads `roneneldan/TinyStories` (`train[:10]`) via [Hugging Face `datasets`](https://huggingface.co/docs/datasets).
-- Builds a word-level vocabulary with a small regex tokenizer (`list_tokens`).
-- Defines an `Embedding` layer, a stub `Attention` module, and an `LLM` that sums token and position embeddings. Transformer layers are currently an empty `ModuleList`.
-- Runs a fixed two-token input `["this", "was"]` and prints the resulting tensor.
+Goal: Create a LLM that can produce English text using training (initially from stories, later web text).
 
 ## Requirements
 
