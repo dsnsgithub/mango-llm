@@ -44,3 +44,6 @@ checkpoints/
 wandb/
 mlruns/
 lightning_logs/
+
+# Datasets
+dataset/TinyStories/*
