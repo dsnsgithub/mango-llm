@@ -21,13 +21,13 @@ TRANSFORMER_BLOCKS = 2
 
 MAX_LENGTH = 4096
 LEARNING_RATE = 0.01
-EPOCH_COUNT = 200
+EPOCH_COUNT = 100
 SAVE_ON_EPOCH = 50 # save every 50 epochs
 
 TRAINING = True
 
 ## DATASET PARSING -----------------------------------------------
-dataset = pd.read_csv("./dataset/TinyStories/train.csv")["text"][:500]
+dataset = pd.read_csv("./dataset/TinyStories/train.csv")["text"][:1000]
 
 
 def list_tokens(string: str):
@@ -211,8 +211,13 @@ def train():
             torch.save(model.state_dict(), f"model-{epoch}.pth")
             print(f"Saved snapshot at: model-{epoch}.pth")
 
-        print(f"Epoch {epoch} Loss: ", total_loss / len(tokenized_stories))
+        average_loss = total_loss / len(tokenized_stories)
+        if epoch % 10 == 0:
+            print(f"Epoch {epoch} Loss: {average_loss:.4f}")
+        else:
+            print(f"\r=>      Epoch {epoch} Loss: {average_loss:.4f}", end="")
 
+    print() # new line at the end
     torch.save(model.state_dict(), "model.pth")
 
 
@@ -228,7 +233,7 @@ def generate(prompt: str, new_tokens=30):
 
         current_string = current_string + separator + new_token
 
-    print(current_string)
+    print("Output: ", current_string)
 
 
 model = LLM(
@@ -245,4 +250,4 @@ else:
 total_parameters = sum(p.numel() for p in model.parameters())
 print("This model has: ", total_parameters, " parameters.")
 
-generate("This was", 30)
+generate("One day,", 30)
