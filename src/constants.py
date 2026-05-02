@@ -9,3 +9,5 @@ SAVE_ON_EPOCH = 10  # save every 10 epochs
 
 TRAINING = False
 TOTAL_DATASET_ELEMENTS = 2000
+
+RANDOM_SEED = 17
