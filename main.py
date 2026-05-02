@@ -1,20 +1,25 @@
-import pandas as pd
-
-import torch
-import torch.nn as nn
-
 import math
 import re
 
+import pandas as pd
+import torch
+import torch.nn as nn
 
 ## PYTORCH  -----------------------------------------------
-device = torch.accelerator.current_accelerator().type if torch.accelerator.is_available() else "cpu"
+device = (
+    torch.accelerator.current_accelerator().type
+    if torch.accelerator.is_available()
+    else "cpu"
+)
 torch.random.manual_seed(seed=17)
 print("PyTorch Accelerator: ", device)
 
 ## LLM CONSTANTS -----------------------------------------------
 EMBEDDING_DIMENSIONS = 64
 HIDDEN_FEED_FORWARD_DIMENSIONS = EMBEDDING_DIMENSIONS * 4
+
+TRANSFORMER_BLOCKS = 2
+
 MAX_LENGTH = 4096
 LEARNING_RATE = 0.01
 EPOCH_COUNT = 200
@@ -24,24 +29,31 @@ TRAINING = True
 ## DATASET PARSING -----------------------------------------------
 dataset = pd.read_csv("./dataset/TinyStories/train.csv")["text"][:500]
 
-def list_tokens(string): # turns "This is a test." into {"this", "is", "a", "test", "."}
+
+def list_tokens(string: str):
     return re.findall(r"\w+|[^\w\s]", string.lower())
 
-vocab = set() # {'heard', 'celebrated', 'that', 'again', 'stopped'... }
+
+vocab = set()
 for story in dataset:
     words = list_tokens(story)
     vocab.update(words)
 print("Vocab Length: ", len(vocab))
 
-token_to_index_map = {word: i for i, word in enumerate(sorted(vocab))} # {'after': 7, 'again': 8, 'all': 9, 'always': 10, 'am': 11, 'and': 12}
+# token_to_index_map = {'after': 7, 'again': 8, 'all': 9, 'always': 10, 'am': 11, 'and': 12}
+# index_to_token_map is the reverse
+token_to_index_map = {word: i for i, word in enumerate(sorted(vocab))}
 index_to_token_map = {i: word for i, word in enumerate(sorted(vocab))}
+
 
 def string_to_token_ids(string: str):
     token_list = list_tokens(string)
-    return torch.tensor([token_to_index_map[word] for word in token_list]).to(device=device)
+    return torch.tensor([token_to_index_map[word] for word in token_list]).to(
+        device=device
+    )
+
 
 ## LLM -----------------------------------------------
-
 class Embedding(nn.Module):
     def __init__(self, vocab_length: int, embedding_dimensions: int):
         super().__init__()
@@ -91,7 +103,7 @@ class FeedForward(nn.Module):
         self.network = nn.Sequential(
             nn.Linear(embedding_dimensions, hidden_dimensions),
             nn.ReLU(),
-            nn.Linear(hidden_dimensions, embedding_dimensions)
+            nn.Linear(hidden_dimensions, embedding_dimensions),
         )
 
     def forward(self, x):
@@ -99,49 +111,65 @@ class FeedForward(nn.Module):
 
 
 class Transformer(nn.Module):
-    def __init__(self, *, embedding_dimensions: int, hidden_feed_forward_dimensions: int):
+    def __init__(
+        self, *, embedding_dimensions: int, hidden_feed_forward_dimensions: int
+    ):
         super().__init__()
         self.embedding_dimensions = embedding_dimensions
 
         self.attention = Attention(embedding_dimensions=EMBEDDING_DIMENSIONS)
-        self.feed_forward = FeedForward(embedding_dimensions=EMBEDDING_DIMENSIONS, hidden_dimensions=HIDDEN_FEED_FORWARD_DIMENSIONS)
+        self.feed_forward = FeedForward(
+            embedding_dimensions=EMBEDDING_DIMENSIONS,
+            hidden_dimensions=HIDDEN_FEED_FORWARD_DIMENSIONS,
+        )
 
         self.norm1 = nn.LayerNorm(EMBEDDING_DIMENSIONS)
         self.norm2 = nn.LayerNorm(EMBEDDING_DIMENSIONS)
 
     def forward(self, x):
-        original_data = x.clone()
-        
-        x = original_data + self.attention(x)
-        x = self.norm1(x) # add and normalize part 1
-        x = original_data + self.feed_forward(x)
-        x = self.norm1(x) # add and normalize part 2
+        x = x + self.attention(self.norm1(x))
+        x = x + self.feed_forward(self.norm2(x))
 
         return x
 
+
 class LLM(nn.Module):
-    def __init__(self, *, embedding_dimensions: int, hidden_feed_forward_dimensions: int, max_length: int):
+    def __init__(
+        self,
+        *,
+        embedding_dimensions: int,
+        hidden_feed_forward_dimensions: int,
+        max_length: int,
+    ):
         super().__init__()
 
         self.token_embedding_table = Embedding(len(vocab), embedding_dimensions)
         self.positional_embedding_table = Embedding(max_length, embedding_dimensions)
 
-        self.layers = nn.ModuleList([
-            Transformer(embedding_dimensions=embedding_dimensions, hidden_feed_forward_dimensions=hidden_feed_forward_dimensions),
-            Transformer(embedding_dimensions=embedding_dimensions, hidden_feed_forward_dimensions=hidden_feed_forward_dimensions),
-            nn.Linear(embedding_dimensions, len(vocab))
-        ])
+        self.transformer_blocks = [
+            Transformer(
+                embedding_dimensions=embedding_dimensions,
+                hidden_feed_forward_dimensions=hidden_feed_forward_dimensions,
+            )
+            for _ in range(TRANSFORMER_BLOCKS)
+        ]
+        self.layers = nn.ModuleList(
+            self.transformer_blocks + [nn.Linear(embedding_dimensions, len(vocab))]
+        )
 
     def forward(self, token_ids):
         positions = torch.arange(len(token_ids)).to(token_ids.device)
-        x = self.token_embedding_table(token_ids) + self.positional_embedding_table(positions)
+        x = self.token_embedding_table(token_ids) + self.positional_embedding_table(
+            positions
+        )
 
         for layer in self.layers:
             x = layer(x)
 
         # torch.softmax(x, dim=-1) is not needed, as the cross entropy loss will do it automatically
         return x
-    
+
+
 def run_forward_pass(input):
     token_ids = string_to_token_ids(input)
 
@@ -153,6 +181,7 @@ def run_forward_pass(input):
     next_token_index = int(output[-1].argmax().item())
     return index_to_token_map[next_token_index]
 
+
 def train():
     optimizer = torch.optim.AdamW(model.parameters(), lr=LEARNING_RATE)
     loss_fn = nn.CrossEntropyLoss()
@@ -161,48 +190,57 @@ def train():
     for story in dataset:
         token_ids = string_to_token_ids(story)
         tokenized_stories.append(token_ids)
-    
+
     for epoch in range(EPOCH_COUNT):
         total_loss = 0
         for story_tokens in tokenized_stories:
-            inputs = story_tokens[:-1] # everything except last token
-            targets = story_tokens[1:] # everything after first token
-            
-            logits: torch.Tensor = model(inputs)    
-            
-            loss = loss_fn(logits, targets) # compare the output from the model given the first token (input[0]) to the given story next token (targets[0])
+            inputs = story_tokens[:-1]  # everything except last token
+            targets = story_tokens[1:]  # everything after first token
+
+            logits: torch.Tensor = model(inputs)
+
+            # compare the output from the model given the first token (input[0]) to the given story next token (targets[0])
+            loss = loss_fn(logits, targets)
             total_loss += loss.item()
-            
-            optimizer.zero_grad() # reset parameter gradients across model
-            loss.backward() # calculate gradients using loss
-            optimizer.step() # updates parameters through the whole model
+
+            optimizer.zero_grad()  # reset parameter gradients across model
+            loss.backward()  # calculate gradients using loss
+            optimizer.step()  # updates parameters through the whole model
 
         if epoch % 50 == 0 and epoch != 0:
-            torch.save(model.state_dict(), f"model-{epoch}.pth")
+            torch.save(model.state_dict(), f"dist/model-{epoch}.pth")
+            print(f"Saved snapshot at: dist/model-{epoch}.pth")
+
         print(f"Epoch {epoch} Loss: ", total_loss / len(tokenized_stories))
 
-    torch.save(model.state_dict(), "model.pth")
+    torch.save(model.state_dict(), "dist/model.pth")
 
-def generate(prompt: str, new_tokens = 30):
+
+def generate(prompt: str, new_tokens=30):
     current_string = prompt
-    
+
     for _ in range(new_tokens):
         new_token = run_forward_pass(current_string)
 
-        separator = " " 
+        separator = " "
         if new_token in ("!", ".", "?", "'", ",") or current_string[-1] == "'":
-           separator = "" 
-        
+            separator = ""
+
         current_string = current_string + separator + new_token
 
     print(current_string)
 
-model = LLM(embedding_dimensions=EMBEDDING_DIMENSIONS, hidden_feed_forward_dimensions=HIDDEN_FEED_FORWARD_DIMENSIONS, max_length=MAX_LENGTH).to(device)
+
+model = LLM(
+    embedding_dimensions=EMBEDDING_DIMENSIONS,
+    hidden_feed_forward_dimensions=HIDDEN_FEED_FORWARD_DIMENSIONS,
+    max_length=MAX_LENGTH,
+).to(device)
 
 if TRAINING:
     train()
 else:
-    model.load_state_dict(torch.load("model.pth"))
+    model.load_state_dict(torch.load("dist/model.pth"))
 
 total_parameters = sum(p.numel() for p in model.parameters())
 print("This model has: ", total_parameters, " parameters.")
