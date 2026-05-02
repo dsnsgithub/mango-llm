@@ -24,18 +24,21 @@ With [uv](https://docs.astral.sh/uv/) (recommended given the project config):
 
 ```bash
 uv sync
-uv run main.py
+uv run src/train.py
+uv run src/run.py
 ```
 
 Or with any environment where `torch` and `pandas` are installed:
 
 ```bash
-python main.py
+uv run src/train.py
+uv run src/run.py
 ```
 
 ## Layout
 
 | Path | Role |
 |------|------|
-| `main.py` | Current PyTorch experiment |
-| `old/` | Older NumPy / PyTorch experiments (not required by `main.py`) |
+| `src/` | LLM code, main files being `src/run.py` and `src/train.py` |
+| `dist/` | Contains trained LLM that can be run with `src/run.py` |
+| `old/` | Older NumPy / PyTorch experiments (not required anymore) |
