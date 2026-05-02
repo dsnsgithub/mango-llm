@@ -13,8 +13,10 @@ torch.random.manual_seed(seed=17)
 print("Pytorch Accelerator: ", device)
 
 ## LLM CONSTANTS -----------------------------------------------
-EMBEDDING_DIMENSIONS = 5
-MAX_LENGTH = 12
+EMBEDDING_DIMENSIONS = 30
+MAX_LENGTH = 1024
+LEARNING_RATE = 0.01
+EPOCH_COUNT = 200
 
 ## DATASET PARSING -----------------------------------------------
 dataset = pd.read_csv("./dataset/TinyStories/train.csv")["text"][:10]
@@ -31,6 +33,7 @@ token_to_index_map = {word: i for i, word in enumerate(sorted(vocab))} # {'after
 
 index_to_token_map = {i: word for i, word in enumerate(sorted(vocab))}
 
+print("Vocab length: ", len(vocab))
 ## LLM -----------------------------------------------
 
 class Embedding(nn.Module):
@@ -94,26 +97,46 @@ class LLM(nn.Module):
 
         for layer in self.layers:
             x = layer(x)
-        
-        return torch.softmax(x, dim=-1)
+
+        # torch.softmax(x, dim=-1) is not needed, as the cross entropy loss will do it automatically
+        return x
     
 model = LLM(EMBEDDING_DIMENSIONS, MAX_LENGTH).to(device)
 
-def test():
-    token_input = ["this", "was"]
-    token_ids = torch.tensor([token_to_index_map[word] for word in token_input])
+def run_forward_pass(input: str):
+    input_tokens = list_tokens(input)
+    token_ids = torch.tensor([token_to_index_map[word] for word in input_tokens]).to(device=device)
+
+    if len(token_ids) > MAX_LENGTH:
+        raise ValueError("Input exceeds MAX_LENGTH of ", MAX_LENGTH, " tokens.")
+
     output: torch.Tensor = model(token_ids)
 
-    next_token_index = int(output.argmax().item())
-    print("Input text:", token_input)
-    print("Next token:", index_to_token_map[next_token_index])
+    next_token_index = int(output[-1].argmax().item())
+    print(input, index_to_token_map[next_token_index])
 
 def train():
-    first_story_tokens = list_tokens(dataset[0])[:15]
+    first_story_tokens = list_tokens(dataset[0])
 
-    for i in range(1, len(first_story_tokens)):
-        input_tokens = first_story_tokens[:i]
-        print(input_tokens)
+    token_ids = torch.tensor([token_to_index_map[word] for word in first_story_tokens]).to(device=device)
+    print("Input text: ", first_story_tokens)
+
+    optimizer = torch.optim.AdamW(model.parameters(), lr=LEARNING_RATE)
+    loss_fn = nn.CrossEntropyLoss()
+    
+    inputs = token_ids[:-1] # everything except last token
+    targets = token_ids[1:] # everything after first token
+
+    for epoch in range(EPOCH_COUNT):
+        logits: torch.Tensor = model(inputs)    
+        
+        loss = loss_fn(logits, targets) # compare the output from the model given the first token (input[0]) to the given story next token (targets[0])
+        print(f"Epoch {epoch} Loss: ", loss.item())
+    
+        optimizer.zero_grad() # reset parameter gradients across model
+        loss.backward() # calculate gradients using loss
+        optimizer.step() # updates parameters through the whole model
+    
 
 train()
-# test()
+run_forward_pass("One day, a little girl named Lily found a")
