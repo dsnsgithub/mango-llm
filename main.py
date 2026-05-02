@@ -17,12 +17,12 @@ print("PyTorch Accelerator: ", device)
 ## LLM CONSTANTS -----------------------------------------------
 EMBEDDING_DIMENSIONS = 64
 HIDDEN_FEED_FORWARD_DIMENSIONS = EMBEDDING_DIMENSIONS * 4
-
 TRANSFORMER_BLOCKS = 2
 
 MAX_LENGTH = 4096
 LEARNING_RATE = 0.01
 EPOCH_COUNT = 200
+SAVE_ON_EPOCH = 50 # save every 50 epochs
 
 TRAINING = True
 
@@ -207,13 +207,13 @@ def train():
             loss.backward()  # calculate gradients using loss
             optimizer.step()  # updates parameters through the whole model
 
-        if epoch % 50 == 0 and epoch != 0:
-            torch.save(model.state_dict(), f"dist/model-{epoch}.pth")
-            print(f"Saved snapshot at: dist/model-{epoch}.pth")
+        if epoch % SAVE_ON_EPOCH == 0 and epoch != 0:
+            torch.save(model.state_dict(), f"model-{epoch}.pth")
+            print(f"Saved snapshot at: model-{epoch}.pth")
 
         print(f"Epoch {epoch} Loss: ", total_loss / len(tokenized_stories))
 
-    torch.save(model.state_dict(), "dist/model.pth")
+    torch.save(model.state_dict(), "model.pth")
 
 
 def generate(prompt: str, new_tokens=30):
@@ -240,7 +240,7 @@ model = LLM(
 if TRAINING:
     train()
 else:
-    model.load_state_dict(torch.load("dist/model.pth"))
+    model.load_state_dict(torch.load("model.pth"))
 
 total_parameters = sum(p.numel() for p in model.parameters())
 print("This model has: ", total_parameters, " parameters.")
