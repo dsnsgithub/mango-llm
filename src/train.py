@@ -50,7 +50,8 @@ def train():
         end_time = time.perf_counter()
 
         time_taken = end_time - start_time
-        time_until_completion = datetime.timedelta((EPOCH_COUNT - epoch) * time_taken)
+        eta_seconds = (EPOCH_COUNT - epoch) * time_taken
+        time_until_completion = datetime.timedelta(seconds=int(eta_seconds))
 
         print(
             f"Epoch {epoch} | Loss: {average_loss} | ETA: {str(time_until_completion)}"
