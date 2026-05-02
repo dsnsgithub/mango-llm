@@ -38,6 +38,7 @@ Thumbs.db
 # ML / experiments (large or machine-local)
 *.pt
 *.pth
+!model.pth
 *.ckpt
 *.safetensors
 checkpoints/

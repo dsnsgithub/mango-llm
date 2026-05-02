@@ -22,9 +22,9 @@ TRANSFORMER_BLOCKS = 2
 MAX_LENGTH = 4096
 LEARNING_RATE = 0.01
 EPOCH_COUNT = 100
-SAVE_ON_EPOCH = 50  # save every 50 epochs
+SAVE_ON_EPOCH = 10  # save every 10 epochs
 
-TRAINING = True
+TRAINING = False
 
 ## DATASET PARSING -----------------------------------------------
 raw_dataset = pd.read_csv("./dataset/TinyStories/train.csv")["text"]
@@ -248,4 +248,4 @@ else:
 total_parameters = sum(p.numel() for p in model.parameters())
 print("This model has: ", total_parameters, " parameters.")
 
-generate("One day,", 30)
+generate("one day,", 30)
