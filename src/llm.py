@@ -36,7 +36,12 @@ class LLM(nn.Module):
             for _ in range(TRANSFORMER_BLOCKS)
         ]
         self.layers = nn.ModuleList(
-            self.transformer_blocks + [Linear(input_dimension=embedding_dimensions, output_dimension=vocab_length)]
+            self.transformer_blocks
+            + [
+                Linear(
+                    input_dimension=embedding_dimensions, output_dimension=vocab_length
+                )
+            ]
         )
 
     def forward(self, token_ids):

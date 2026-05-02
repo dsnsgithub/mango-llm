@@ -32,7 +32,7 @@ def generate(prompt: str, new_tokens=30):
     print("Output: ", current_string)
 
 
-model.load_state_dict(torch.load("dist/model.pth"))
+model.load_state_dict(torch.load("dist/model-30.pth"))
 
 total_parameters = sum(p.numel() for p in model.parameters())
 print("This model has: ", total_parameters, " parameters.")

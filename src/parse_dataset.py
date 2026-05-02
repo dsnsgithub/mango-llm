@@ -11,7 +11,7 @@ dataset = raw_dataset[:TOTAL_DATASET_ELEMENTS]
 
 
 def list_tokens(string: str):
-    return re.findall(r"\w+|[^\w\s]", string.lower())
+    return re.findall(r"\w+|[^\w\s]", string)
 
 
 vocab = set()

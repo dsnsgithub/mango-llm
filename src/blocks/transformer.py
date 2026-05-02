@@ -1,7 +1,7 @@
 import torch.nn as nn
+
 from blocks.attention import Attention
 from blocks.feedforward import FeedForward
-
 from constants import EMBEDDING_DIMENSIONS, HIDDEN_FEED_FORWARD_DIMENSIONS
 
 

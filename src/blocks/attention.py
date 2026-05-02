@@ -29,7 +29,7 @@ class Attention(nn.Module):
 
         # dim=-1 means each row in the tensor will add to 1
         # the operation is happening across the last dimensions (the columns)
-        weights = torch.softmax(scores, dim=-1) 
+        weights = torch.softmax(scores, dim=-1)
 
         # weights:
         #          "this"   "was"

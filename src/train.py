@@ -1,3 +1,6 @@
+import datetime
+import time
+
 import torch
 import torch.nn as nn
 
@@ -23,6 +26,7 @@ def train():
         tokenized_stories.append(token_ids)
 
     for epoch in range(EPOCH_COUNT):
+        start_time = time.perf_counter()
         total_loss = 0
         for story_tokens in tokenized_stories:
             inputs = story_tokens[:-1]  # everything except last token
@@ -43,7 +47,14 @@ def train():
             print(f"Saved snapshot at: dist/model-{epoch}.pth")
 
         average_loss = total_loss / len(tokenized_stories)
-        print(f"Epoch {epoch} | Loss: {average_loss}")
+        end_time = time.perf_counter()
+
+        time_taken = end_time - start_time
+        time_until_completion = datetime.timedelta((EPOCH_COUNT - epoch) * time_taken)
+
+        print(
+            f"Epoch {epoch} | Loss: {average_loss} | ETA: {str(time_until_completion)}"
+        )
 
     print()  # new line at the end
     torch.save(model.state_dict(), "dist/model.pth")
