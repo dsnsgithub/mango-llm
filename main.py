@@ -19,8 +19,10 @@ MAX_LENGTH = 4096
 LEARNING_RATE = 0.01
 EPOCH_COUNT = 200
 
+TRAINING = True
+
 ## DATASET PARSING -----------------------------------------------
-dataset = pd.read_csv("./dataset/TinyStories/train.csv")["text"][:100]
+dataset = pd.read_csv("./dataset/TinyStories/train.csv")["text"][:1000]
 
 def list_tokens(string): # turns "This is a test." into {"this", "is", "a", "test", "."}
     return re.findall(r"\w+|[^\w\s]", string.lower())
@@ -191,8 +193,11 @@ def generate(new_tokens = 30):
     print(current_string)
 
 model = LLM(embedding_dimensions=EMBEDDING_DIMENSIONS, hidden_feed_forward_dimensions=HIDDEN_FEED_FORWARD_DIMENSIONS, max_length=MAX_LENGTH).to(device)
-# train()
-model.load_state_dict(torch.load("model.pth"))
+
+if TRAINING:
+    train()
+else:
+    model.load_state_dict(torch.load("model.pth"))
 
 total_parameters = sum(p.numel() for p in model.parameters())
 print("This model has: ", total_parameters, " parameters.")
