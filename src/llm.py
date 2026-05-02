@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 
 from blocks.embedding import Embedding
+from blocks.linear import Linear
 from blocks.transformer import Transformer
 from constants import (
     EMBEDDING_DIMENSIONS,
@@ -35,7 +36,7 @@ class LLM(nn.Module):
             for _ in range(TRANSFORMER_BLOCKS)
         ]
         self.layers = nn.ModuleList(
-            self.transformer_blocks + [nn.Linear(embedding_dimensions, vocab_length)]
+            self.transformer_blocks + [Linear(input_dimension=embedding_dimensions, output_dimension=vocab_length)]
         )
 
     def forward(self, token_ids):
