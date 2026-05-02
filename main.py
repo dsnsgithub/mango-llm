@@ -4,6 +4,8 @@ import re
 import pandas as pd
 import torch
 import torch.nn as nn
+from torch.utils.data import DataLoader, TensorDataset
+from torch.nn.utils.rnn import pad_sequence
 
 ## PYTORCH  -----------------------------------------------
 device = (
@@ -17,12 +19,13 @@ print("PyTorch Accelerator: ", device)
 ## LLM CONSTANTS -----------------------------------------------
 EMBEDDING_DIMENSIONS = 64
 HIDDEN_FEED_FORWARD_DIMENSIONS = EMBEDDING_DIMENSIONS * 4
-
 TRANSFORMER_BLOCKS = 2
-
 MAX_LENGTH = 4096
+
 LEARNING_RATE = 0.01
 EPOCH_COUNT = 200
+SAVE_ON_EPOCH = 50 # save every 50 epochs
+BATCH_SIZE = 10 # stories per forward/backward pass
 
 TRAINING = True
 
@@ -184,18 +187,24 @@ def run_forward_pass(input):
 
 def train():
     optimizer = torch.optim.AdamW(model.parameters(), lr=LEARNING_RATE)
-    loss_fn = nn.CrossEntropyLoss()
 
-    tokenized_stories = []
+    # use ignore_index=0 because 0 is used to pad stories that are shorter than others
+    loss_fn = nn.CrossEntropyLoss(ignore_index=0)
+
+    tokenized_stories_list: list[torch.Tensor] = []
     for story in dataset:
         token_ids = string_to_token_ids(story)
-        tokenized_stories.append(token_ids)
+        tokenized_stories_list.append(token_ids)
+
+    # using TensorDataset to make training faster
+    tokenized_stories = TensorDataset(pad_sequence(tokenized_stories_list, batch_first=True))
 
     for epoch in range(EPOCH_COUNT):
         total_loss = 0
-        for story_tokens in tokenized_stories:
-            inputs = story_tokens[:-1]  # everything except last token
-            targets = story_tokens[1:]  # everything after first token
+        for story_tokens in DataLoader(tokenized_stories, batch_size=BATCH_SIZE, shuffle=True):
+            print(story_tokens)
+            inputs = story_tokens[:, :-1]  # all stories, all tokens in each story except last token
+            targets = story_tokens[:, 1:]  # all stories, all tokens in each story everything after first token
 
             logits: torch.Tensor = model(inputs)
 
@@ -207,13 +216,13 @@ def train():
             loss.backward()  # calculate gradients using loss
             optimizer.step()  # updates parameters through the whole model
 
-        if epoch % 50 == 0 and epoch != 0:
-            torch.save(model.state_dict(), f"dist/model-{epoch}.pth")
-            print(f"Saved snapshot at: dist/model-{epoch}.pth")
+        if epoch % SAVE_ON_EPOCH == 0 and epoch != 0:
+            torch.save(model.state_dict(), f"model-{epoch}.pth")
+            print(f"Saved snapshot at: model-{epoch}.pth")
 
         print(f"Epoch {epoch} Loss: ", total_loss / len(tokenized_stories))
 
-    torch.save(model.state_dict(), "dist/model.pth")
+    torch.save(model.state_dict(), "model.pth")
 
 
 def generate(prompt: str, new_tokens=30):
@@ -240,7 +249,7 @@ model = LLM(
 if TRAINING:
     train()
 else:
-    model.load_state_dict(torch.load("dist/model.pth"))
+    model.load_state_dict(torch.load("model.pth"))
 
 total_parameters = sum(p.numel() for p in model.parameters())
 print("This model has: ", total_parameters, " parameters.")
