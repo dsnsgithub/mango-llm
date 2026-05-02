@@ -22,12 +22,13 @@ TRANSFORMER_BLOCKS = 2
 MAX_LENGTH = 4096
 LEARNING_RATE = 0.01
 EPOCH_COUNT = 100
-SAVE_ON_EPOCH = 50 # save every 50 epochs
+SAVE_ON_EPOCH = 50  # save every 50 epochs
 
 TRAINING = True
 
 ## DATASET PARSING -----------------------------------------------
-dataset = pd.read_csv("./dataset/TinyStories/train.csv")["text"][:1000]
+raw_dataset = pd.read_csv("./dataset/TinyStories/train.csv")["text"]
+dataset = raw_dataset[:2000]
 
 
 def list_tokens(string: str):
@@ -212,12 +213,9 @@ def train():
             print(f"Saved snapshot at: model-{epoch}.pth")
 
         average_loss = total_loss / len(tokenized_stories)
-        if epoch % 10 == 0:
-            print(f"Epoch {epoch} Loss: {average_loss:.4f}")
-        else:
-            print(f"\r=>      Epoch {epoch} Loss: {average_loss:.4f}", end="")
+        print(f"Epoch {epoch} | Loss: {average_loss}")
 
-    print() # new line at the end
+    print()  # new line at the end
     torch.save(model.state_dict(), "model.pth")
 
 
