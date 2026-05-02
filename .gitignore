@@ -10,7 +10,7 @@ __pycache__/
 .cache/
 *.egg-info/
 *.egg
-dist/
+dist/*
 build/
 
 # Virtual environments
@@ -38,7 +38,9 @@ Thumbs.db
 # ML / experiments (large or machine-local)
 *.pt
 *.pth
-!model.pth
+
+!dist/model.pth
+
 *.ckpt
 *.safetensors
 checkpoints/

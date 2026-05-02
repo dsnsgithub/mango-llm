@@ -5,4 +5,11 @@ device = (
     if torch.accelerator.is_available()
     else "cpu"
 )
-print("PyTorch Accelerator: ", device)
+
+
+def display_accelerator():
+    print("PyTorch Accelerator: ", device)
+
+
+if __name__ == "__main__":
+    display_accelerator()
