@@ -26,7 +26,10 @@ class Attention(nn.Module):
         mask = torch.triu(ones_matrix, diagonal=1).bool().to(x.device)
 
         scores = scores_before_mask.masked_fill(mask, float("-inf"))
-        weights = torch.softmax(scores, dim=-1)
+
+        # dim=-1 means each row in the tensor will add to 1
+        # the operation is happening across the last dimensions (the columns)
+        weights = torch.softmax(scores, dim=-1) 
 
         # weights:
         #          "this"   "was"
