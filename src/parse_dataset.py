@@ -4,9 +4,10 @@ import pandas as pd
 import torch
 
 import pytorch_check
+from constants import TOTAL_DATASET_ELEMENTS
 
 raw_dataset = pd.read_csv("./dataset/TinyStories/train.csv")["text"]
-dataset = raw_dataset[:2000]
+dataset = raw_dataset[:TOTAL_DATASET_ELEMENTS]
 
 
 def list_tokens(string: str):
