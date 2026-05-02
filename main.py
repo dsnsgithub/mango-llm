@@ -10,7 +10,7 @@ import re
 ## PYTORCH  -----------------------------------------------
 device = torch.accelerator.current_accelerator().type if torch.accelerator.is_available() else "cpu"
 torch.random.manual_seed(seed=17)
-print("Pytorch Accelerator: ", device)
+print("PyTorch Accelerator: ", device)
 
 ## LLM CONSTANTS -----------------------------------------------
 EMBEDDING_DIMENSIONS = 64
@@ -19,7 +19,7 @@ MAX_LENGTH = 4096
 LEARNING_RATE = 0.01
 EPOCH_COUNT = 200
 
-TRAINING = True
+TRAINING = False
 
 ## DATASET PARSING -----------------------------------------------
 dataset = pd.read_csv("./dataset/TinyStories/train.csv")["text"][:1000]
@@ -178,8 +178,8 @@ def train():
 
     torch.save(model.state_dict(), "model.pth")
 
-def generate(new_tokens = 30):
-    current_string = "One day,"
+def generate(prompt: str, new_tokens = 30):
+    current_string = prompt
     
     for _ in range(new_tokens):
         new_token = run_forward_pass(current_string)
@@ -202,4 +202,4 @@ else:
 total_parameters = sum(p.numel() for p in model.parameters())
 print("This model has: ", total_parameters, " parameters.")
 
-generate()
+generate("This was", 30)
