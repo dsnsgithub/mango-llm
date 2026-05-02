@@ -19,10 +19,10 @@ MAX_LENGTH = 4096
 LEARNING_RATE = 0.01
 EPOCH_COUNT = 200
 
-TRAINING = False
+TRAINING = True
 
 ## DATASET PARSING -----------------------------------------------
-dataset = pd.read_csv("./dataset/TinyStories/train.csv")["text"][:1000]
+dataset = pd.read_csv("./dataset/TinyStories/train.csv")["text"][:500]
 
 def list_tokens(string): # turns "This is a test." into {"this", "is", "a", "test", "."}
     return re.findall(r"\w+|[^\w\s]", string.lower())
@@ -110,10 +110,12 @@ class Transformer(nn.Module):
         self.norm2 = nn.LayerNorm(EMBEDDING_DIMENSIONS)
 
     def forward(self, x):
-        x = x + self.attention(x)
-        x = x + self.norm1(x)
-        x = x + self.feed_forward(x)
-        x = x + self.norm1(x)
+        original_data = x.clone()
+        
+        x = original_data + self.attention(x)
+        x = self.norm1(x) # add and normalize part 1
+        x = original_data + self.feed_forward(x)
+        x = self.norm1(x) # add and normalize part 2
 
         return x
 
@@ -125,6 +127,7 @@ class LLM(nn.Module):
         self.positional_embedding_table = Embedding(max_length, embedding_dimensions)
 
         self.layers = nn.ModuleList([
+            Transformer(embedding_dimensions=embedding_dimensions, hidden_feed_forward_dimensions=hidden_feed_forward_dimensions),
             Transformer(embedding_dimensions=embedding_dimensions, hidden_feed_forward_dimensions=hidden_feed_forward_dimensions),
             nn.Linear(embedding_dimensions, len(vocab))
         ])
@@ -174,6 +177,8 @@ def train():
             loss.backward() # calculate gradients using loss
             optimizer.step() # updates parameters through the whole model
 
+        if epoch % 50 == 0 and epoch != 0:
+            torch.save(model.state_dict(), f"model-{epoch}.pth")
         print(f"Epoch {epoch} Loss: ", total_loss / len(tokenized_stories))
 
     torch.save(model.state_dict(), "model.pth")
