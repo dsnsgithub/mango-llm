@@ -43,8 +43,10 @@ def train():
             optimizer.step()  # updates parameters through the whole model
 
         if epoch % SAVE_ON_EPOCH == 0 and epoch != 0:
-            torch.save(model.state_dict(), f"dist/model-{epoch}.pth")
-            print(f"Saved snapshot at: dist/model-{epoch}.pth")
+            torch.save(
+                model.state_dict(), f"dist/model-{pytorch_check.device}-{epoch}.pth"
+            )
+            print(f"Saved snapshot at: dist/model-{pytorch_check.device}-{epoch}.pth")
 
         average_loss = total_loss / len(tokenized_stories)
         end_time = time.perf_counter()
@@ -54,11 +56,11 @@ def train():
         time_until_completion = datetime.timedelta(seconds=int(eta_seconds))
 
         print(
-            f"Epoch {epoch} | Loss: {average_loss} | ETA: {str(time_until_completion)}"
+            f"Epoch {epoch} | Loss: {average_loss} | Time Taken: {time_taken} sec | ETA: {str(time_until_completion)}"
         )
 
     print()  # new line at the end
-    torch.save(model.state_dict(), "dist/model.pth")
+    torch.save(model.state_dict(), f"dist/model-{pytorch_check.device}.pth")
 
 
 train()

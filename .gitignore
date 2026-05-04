@@ -39,7 +39,8 @@ Thumbs.db
 *.pt
 *.pth
 
-!dist/model.pth
+!dist/model-cuda.pth
+!dist/model-mps.pth
 
 *.ckpt
 *.safetensors
