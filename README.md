@@ -16,6 +16,7 @@ On Linux and Windows, `pyproject.toml` pins PyTorch to the **CUDA 12.4** wheel i
 To train, download the required datasets from Kaggle:
 
 Create directory `./dataset/TinyStories`: Download `train.csv` and `validation.csv` and place in this directory.
+
 Link: https://www.kaggle.com/datasets/thedevastator/tinystories-narrative-classification/data
 
 ---
@@ -31,8 +32,8 @@ uv run src/run.py
 Or with any environment where `torch` and `pandas` are installed:
 
 ```bash
-uv run src/train.py
-uv run src/run.py
+python src/train.py
+python src/run.py
 ```
 
 ## Layout
