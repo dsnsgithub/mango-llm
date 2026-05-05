@@ -18,6 +18,9 @@ pytorch_check.display_accelerator()
 
 
 def train():
+    total_parameters = sum(p.numel() for p in model.parameters())
+    print("This model has: ", total_parameters, " parameters.")
+
     optimizer = torch.optim.AdamW(model.parameters(), lr=LEARNING_RATE)
     loss_fn = nn.CrossEntropyLoss()
 
@@ -58,7 +61,3 @@ def train():
 
 
 train()
-
-
-total_parameters = sum(p.numel() for p in model.parameters())
-print("This model has: ", total_parameters, " parameters.")

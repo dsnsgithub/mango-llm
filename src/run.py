@@ -32,11 +32,11 @@ def generate(prompt: str, new_tokens=30):
     print("Output: ", current_string)
 
 
-model = torch.load(f"dist/model-{pytorch_check.device}-5.pth", weights_only=False)
+model = torch.load(f"dist/model-{pytorch_check.device}-2.pth", weights_only=False)
 
 total_parameters = sum(p.numel() for p in model.parameters())
 print("This model has: ", total_parameters, " parameters.")
 
-input_string = input("Enter a prompt (or press Enter for default): ") or "one day,"
+input_string = input("Enter a prompt (or press Enter for default): ") or "One day,"
 token_length = int(input("Enter the number of tokens you wish to generate: ")) or 30
 generate(input_string, token_length)
