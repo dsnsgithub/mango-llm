@@ -1,7 +1,6 @@
 import torch
 
 from constants import MAX_LENGTH
-from llm import model
 from parse_dataset import index_to_token_map, string_to_token_ids
 import pytorch_check
 
@@ -33,7 +32,7 @@ def generate(prompt: str, new_tokens=30):
     print("Output: ", current_string)
 
 
-model.load_state_dict(torch.load(f"dist/model-{pytorch_check.device}.pth"))
+model = torch.load(f"dist/model-{pytorch_check.device}-5.pth", weights_only=False)
 
 total_parameters = sum(p.numel() for p in model.parameters())
 print("This model has: ", total_parameters, " parameters.")

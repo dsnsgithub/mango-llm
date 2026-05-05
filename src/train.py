@@ -39,9 +39,7 @@ def train():
             optimizer.step()  # updates parameters through the whole model
 
         if epoch % SAVE_ON_EPOCH == 0 and epoch != 0:
-            torch.save(
-                model.state_dict(), f"dist/model-{pytorch_check.device}-{epoch}.pth"
-            )
+            torch.save(model, f"dist/model-{pytorch_check.device}-{epoch}.pth")
             print(f"Saved snapshot at: dist/model-{pytorch_check.device}-{epoch}.pth")
 
         average_loss = total_loss / len(loaded_dataset)
@@ -56,7 +54,7 @@ def train():
         )
 
     print()  # new line at the end
-    torch.save(model.state_dict(), f"dist/model-{pytorch_check.device}.pth")
+    torch.save(model, f"dist/model-{pytorch_check.device}.pth")
 
 
 train()
