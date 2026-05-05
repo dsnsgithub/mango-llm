@@ -1,8 +1,8 @@
 import torch
 
+import pytorch_check
 from constants import MAX_LENGTH
 from parse_dataset import index_to_token_map, string_to_token_ids
-import pytorch_check
 
 
 def run_forward_pass(input):

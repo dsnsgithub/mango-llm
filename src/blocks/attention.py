@@ -10,6 +10,7 @@ class Attention(nn.Module):
     def __init__(self, *, embedding_dimensions: int):
         super().__init__()
 
+        # only reason to use nn.Parameter is because without it, pytorch can't use autograd
         self.W_q = nn.Parameter(torch.randn(embedding_dimensions, embedding_dimensions))
         self.W_k = nn.Parameter(torch.randn(embedding_dimensions, embedding_dimensions))
         self.W_v = nn.Parameter(torch.randn(embedding_dimensions, embedding_dimensions))
