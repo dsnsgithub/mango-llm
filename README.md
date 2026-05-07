@@ -4,6 +4,10 @@
 
 Goal: Create a LLM that can produce English text using training (initially from stories, later web text).
 
+Each layer is built from basic components and fundamental matrix operations (instead of using pre-made components).
+
+AI/LLMs are used to assist, but most of the code in this repo (apart from some parts of the README) was hand-written.
+
 ## Requirements
 
 - Python **3.13+**
@@ -15,7 +19,7 @@ On Linux and Windows, `pyproject.toml` pins PyTorch to the **CUDA 12.4** wheel i
 
 To train, download the required datasets from Kaggle:
 
-Create directory `./dataset/TinyStories`: Download `train.csv` and `validation.csv` and place in this directory.
+Download `train.csv` and `validation.csv` and create/place the files in `./dataset/TinyStories`.
 
 Link: https://www.kaggle.com/datasets/thedevastator/tinystories-narrative-classification/data
 
