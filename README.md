@@ -1,6 +1,8 @@
-# LLM
+# 🥭 Mango LLM
 
 ### **Work in progress.**
+
+> **M**y **A**nswers **N**eed **G**enuine **O**versight => **MANGO**
 
 Goal: Create a LLM that can produce coherent English text (initially trained on stories, later web text), in the process learning machine learning concepts.
 
@@ -9,11 +11,11 @@ Each layer is built from basic components and fundamental matrix operations (ins
 AI was used to assist/help me understand LLM concepts, but almost all of the code in this repo (apart from some parts of the README) was handwritten and loosely based off of GPT-2 and the original Attention is All You Need paper.
 
 ## Requirements
+- [uv](https://docs.astral.sh/uv/)
 
-- Python **3.13+**
-- Dependencies: `torch`, `pandas` (see [`pyproject.toml`](pyproject.toml))
+uv can automatically install the required Python version (even if you don't have Python installed), along with any required packages.
 
-On Linux and Windows, `pyproject.toml` pins PyTorch to **CUDA 12.4**. On macOS, it uses the default MPS (Metal Performance Shaders) accelerator for Apple Silicon if possible. 
+On Linux and Windows, this LLM uses the CUDA accelerator. On macOS, it uses the default MPS (Metal Performance Shaders) accelerator for Apple Silicon if possible.
 
 ## Run
 
@@ -31,13 +33,6 @@ With [uv](https://docs.astral.sh/uv/) (recommended given the project config):
 uv sync
 uv run src/train.py
 uv run src/run.py
-```
-
-Or with any environment where `torch` and `pandas` are installed:
-
-```bash
-python src/train.py
-python src/run.py
 ```
 
 ## Layout
