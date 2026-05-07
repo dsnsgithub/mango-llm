@@ -1,7 +1,7 @@
 [project]
-name = "llm"
-version = "0.1.0"
-description = "Small LLM written in PyTorch."
+name = "mango-llm"
+version = "1.0.2"
+description = "LLM written in PyTorch."
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
