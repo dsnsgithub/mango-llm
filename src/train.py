@@ -10,6 +10,7 @@ from constants import (
     EPOCH_COUNT,
     LEARNING_RATE,
     SAVE_ON_EPOCH,
+    DISPLAY_STEP_SIZE
 )
 from llm import model
 from parse_dataset import StoryDataset
@@ -26,11 +27,12 @@ def train():
 
     dataset = StoryDataset()
     loaded_dataset = DataLoader(dataset, batch_size=1, shuffle=False)
+    total_steps = len(loaded_dataset)
 
     for epoch in range(EPOCH_COUNT):
         start_time = time.perf_counter()
         total_loss = 0
-        for inputs, targets in loaded_dataset:
+        for i, (inputs, targets) in enumerate(loaded_dataset):
             logits: torch.Tensor = model(inputs[0])
 
             # compare the output from the model given the first token (input[0]) to the given story next token (targets[0])
@@ -41,11 +43,14 @@ def train():
             loss.backward()  # calculate gradients using loss
             optimizer.step()  # updates parameters through the whole model
 
+            if i % DISPLAY_STEP_SIZE == 0:
+                print(f"Epoch {epoch} | Step {i}/{total_steps} | Loss: {loss.item()}")
+
         if epoch % SAVE_ON_EPOCH == 0 and epoch != 0:
             torch.save(model, f"dist/model-{pytorch_check.device}-{epoch}.pth")
             print(f"Saved snapshot at: dist/model-{pytorch_check.device}-{epoch}.pth")
 
-        average_loss = total_loss / len(loaded_dataset)
+        average_loss = total_loss / total_steps
         end_time = time.perf_counter()
 
         time_taken = end_time - start_time

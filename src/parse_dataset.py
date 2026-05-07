@@ -6,10 +6,9 @@ import torch
 import pytorch_check
 from constants import TOTAL_DATASET_ELEMENTS
 
-raw_dataset = pd.read_csv("./dataset/TinyStories/train.csv")["text"]
+raw_dataset = pd.read_csv("./dataset/TinyStories/train.csv")["text"].astype(str)
+raw_dataset = raw_dataset[raw_dataset.str.len() >= 200]
 dataset = raw_dataset[:TOTAL_DATASET_ELEMENTS] if TOTAL_DATASET_ELEMENTS else raw_dataset
-dataset = dataset.astype(str)
-dataset = dataset[dataset.str.len() >= 200]
 
 def list_tokens(string: str):
     return re.findall(r"\w+|[^\w\s]", string)
