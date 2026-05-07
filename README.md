@@ -13,7 +13,7 @@ AI was used to assist/help me understand LLM concepts, but almost all of the cod
 - Python **3.13+**
 - Dependencies: `torch`, `pandas` (see [`pyproject.toml`](pyproject.toml))
 
-On Linux and Windows, `pyproject.toml` pins PyTorch to the **CUDA 12.4** wheel index where applicable; adjust or remove `[[tool.uv.index]]` / `[tool.uv.sources]` if you want CPU-only or a different CUDA build.
+On Linux and Windows, `pyproject.toml` pins PyTorch to **CUDA 12.4**. On macOS, it uses the default MPS (Metal Performance Shaders) accelerator for Apple Silicon if possible. 
 
 ## Run
 
@@ -46,4 +46,4 @@ python src/run.py
 |------|------|
 | `src/` | LLM code, main files being `src/run.py` and `src/train.py` |
 | `dist/` | Contains trained LLM that can be run with `src/run.py` |
-| `old/` | Older NumPy / PyTorch experiments (not required anymore) |
+| `old/` | Contains original LLM, useful for beginners trying to understand the basics first |
