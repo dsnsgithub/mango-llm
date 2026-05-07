@@ -1,6 +1,6 @@
 # LLM
 
-**Work in progress.**
+### **Work in progress.**
 
 Goal: Create a LLM that can produce coherent English text (initially trained on stories, later web text), in the process learning machine learning concepts.
 
@@ -46,4 +46,4 @@ python src/run.py
 |------|------|
 | `src/` | LLM code, main files being `src/run.py` and `src/train.py` |
 | `dist/` | Contains trained LLM that can be run with `src/run.py` |
-| `old/` | Contains original LLM, useful for beginners trying to understand the basics first |
+| `old/` | Contains original LLM, useful for beginners trying to understand the basics |
