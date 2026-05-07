@@ -5,6 +5,7 @@ import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
 
+from cross_entropy import CustomEntropyLoss
 import pytorch_check
 from constants import (
     EPOCH_COUNT,
@@ -23,7 +24,7 @@ def train():
     print("This model has: ", total_parameters, " parameters.")
 
     optimizer = torch.optim.AdamW(model.parameters(), lr=LEARNING_RATE)
-    loss_fn = nn.CrossEntropyLoss()
+    loss_fn = CustomEntropyLoss()
 
     dataset = StoryDataset()
     loaded_dataset = DataLoader(dataset, batch_size=1, shuffle=False)

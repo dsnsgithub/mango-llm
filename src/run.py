@@ -13,7 +13,7 @@ def run_forward_pass(input):
 
     output: torch.Tensor = model(token_ids)
 
-    next_token_index = int(output[-1].argmax().item())
+    next_token_index = torch.multinomial(torch.softmax(output), num_samples=1)
     return index_to_token_map[next_token_index]
 
 
@@ -32,7 +32,7 @@ def generate(prompt: str, new_tokens=30):
     print("Output: ", current_string)
 
 
-model = torch.load(f"dist/model-{pytorch_check.device}-2.pth", weights_only=False)
+model = torch.load(f"dist/model-{pytorch_check.device}.pth", weights_only=False)
 
 total_parameters = sum(p.numel() for p in model.parameters())
 print("This model has: ", total_parameters, " parameters.")
