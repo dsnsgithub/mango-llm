@@ -1,8 +1,8 @@
 # 🥭 Mango LLM
+> **M**y **A**nswers **N**eed **G**enuine **O**versight => **MANGO**
 
 ### **Work in progress.**
 
-> **M**y **A**nswers **N**eed **G**enuine **O**versight => **MANGO**
 
 Goal: Create a LLM that can produce coherent English text (initially trained on stories, later web text), in the process learning machine learning concepts.
 
