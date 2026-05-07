@@ -2,7 +2,7 @@
 
 **Work in progress.**
 
-Goal: Create a LLM that can produce English text using training (initially from stories, later web text).
+Goal: Create a LLM that can produce coherent English text (initially trained on stories, later web text), in the process learning machine learning concepts.
 
 Each layer is built from basic components and fundamental matrix operations (instead of using pre-made components).
 
