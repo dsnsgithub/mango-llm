@@ -6,7 +6,7 @@ Goal: Create a LLM that can produce English text using training (initially from 
 
 Each layer is built from basic components and fundamental matrix operations (instead of using pre-made components).
 
-AI/LLMs are used to assist, but most of the code in this repo (apart from some parts of the README) was hand-written.
+AI was used to assist/help me understand LLM concepts, but almost all of the code in this repo (apart from some parts of the README) was handwritten and loosely based off of GPT-2 and the original Attention is All You Need paper.
 
 ## Requirements
 
