@@ -29,7 +29,7 @@ def train():
     loaded_dataset = DataLoader(dataset, batch_size=1, shuffle=False)
     total_steps = len(loaded_dataset)
 
-    for epoch in range(EPOCH_COUNT):
+    for epoch in range(1, EPOCH_COUNT + 1):
         start_time = time.perf_counter()
         total_loss = 0
         for i, (inputs, targets) in enumerate(loaded_dataset):
@@ -46,7 +46,7 @@ def train():
             if i % DISPLAY_STEP_SIZE == 0:
                 print(f"Epoch {epoch} | Step {i}/{total_steps} | Loss: {loss.item()}")
 
-        if epoch % SAVE_ON_EPOCH == 0 and epoch != 0:
+        if epoch % SAVE_ON_EPOCH == 0:
             torch.save(model, f"dist/model-{pytorch_check.device}-{epoch}.pth")
             print(f"Saved snapshot at: dist/model-{pytorch_check.device}-{epoch}.pth")
 
