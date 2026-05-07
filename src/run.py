@@ -1,7 +1,7 @@
 import torch
 
 import pytorch_check
-from constants import MAX_LENGTH
+from constants import MAX_LENGTH, TEMPERATURE
 from parse_dataset import index_to_token_map, string_to_token_ids
 
 
@@ -13,7 +13,7 @@ def run_forward_pass(input):
 
     output: torch.Tensor = model(token_ids)
 
-    next_token_index = torch.multinomial(torch.softmax(output), num_samples=1)
+    next_token_index = torch.multinomial(torch.softmax(output[-1] / TEMPERATURE, dim=-1), num_samples=1).item()
     return index_to_token_map[next_token_index]
 
 

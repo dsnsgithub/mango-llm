@@ -1,6 +1,8 @@
 import torch
 import torch.nn as nn
 
+from constants import SIMILARITY_WEIGHT
+
 class CustomEntropyLoss(nn.Module):
     def __init__(self):
         super().__init__()
@@ -23,4 +25,4 @@ class CustomEntropyLoss(nn.Module):
         identity_matrix = torch.eye(similarity.shape[0]).to(logits.device)
         repeat_loss = (similarity * (1 - identity_matrix)).mean()
 
-        return -target_probabilities.mean() + repeat_loss
+        return -target_probabilities.mean() + (repeat_loss * SIMILARITY_WEIGHT)
