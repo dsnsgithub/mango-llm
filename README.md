@@ -6,9 +6,9 @@
 
 Goal: Create a LLM that can produce coherent English text (initially trained on stories, later web text), in the process learning machine learning concepts.
 
-Each layer is built from basic components and fundamental matrix operations (instead of using pre-made components).
+As many layers/parts of the LLM as possible are built from basic components and individual matrix multiplications (instead of using pre-made components).
 
-AI was used to assist/help me understand LLM concepts, but almost all of the code in this repo (apart from some parts of the README) was handwritten and loosely based off of GPT-2 and the original Attention is All You Need paper.
+AI was used to assist/help me understand LLM concepts, but almost all of the code in this repo was handwritten and loosely based off of GPT-2 and the original Attention is All You Need paper.
 
 ## Requirements
 - [uv](https://docs.astral.sh/uv/)
