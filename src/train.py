@@ -53,8 +53,8 @@ def train():
                 time_taken = end_time - start_time
                 print(f"Time taken: {time_taken:.2f} seconds / {SAVE_ON_STEP} steps")
 
-                torch.save(model, f"dist/model-{pytorch_check.device}-{epoch}-{step}.pth")
-                print(f"Saved snapshot at: dist/model-{pytorch_check.device}-{epoch}-{step}.pth")
+                torch.save(model, f"dist/model-{pytorch_check.device}-snapshot.pth")
+                print(f"Saved snapshot at: dist/model-{pytorch_check.device}-snapshot.pth")
 
         average_loss = total_loss / total_steps
         end_time = time.perf_counter()
