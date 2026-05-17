@@ -10,7 +10,7 @@ import pytorch_check
 from constants import (
     EPOCH_COUNT,
     LEARNING_RATE,
-    SAVE_ON_EPOCH,
+    SAVE_ON_STEP,
     DISPLAY_STEP_SIZE
 )
 from llm import model
@@ -47,15 +47,19 @@ def train():
             if i % DISPLAY_STEP_SIZE == 0:
                 print(f"Epoch {epoch} | Step {i}/{total_steps} | Loss: {loss.item()}")
 
-        if epoch % SAVE_ON_EPOCH == 0:
-            torch.save(model, f"dist/model-{pytorch_check.device}-{epoch}.pth")
-            print(f"Saved snapshot at: dist/model-{pytorch_check.device}-{epoch}.pth")
+            if i % SAVE_ON_STEP == 0 and i != 0:
+                end_time = time.perf_counter()
+                time_taken = end_time - start_time
+                print(f"Time taken: {time_taken:.2f} seconds / {SAVE_ON_STEP} steps")
+
+                torch.save(model, f"dist/model-{pytorch_check.device}-{epoch}-{i}.pth")
+                print(f"Saved snapshot at: dist/model-{pytorch_check.device}-{epoch}-{i}.pth")
 
         average_loss = total_loss / total_steps
         end_time = time.perf_counter()
 
         time_taken = end_time - start_time
-        eta_seconds = (EPOCH_COUNT - epoch) * time_taken
+        eta_seconds = ((EPOCH_COUNT * total_steps) - (epoch * total_steps)) * time_taken
         time_until_completion = datetime.timedelta(seconds=int(eta_seconds))
 
         print(
