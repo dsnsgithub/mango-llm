@@ -16,13 +16,6 @@ class CustomEntropyLoss(nn.Module):
 
         # get a long list of tokens (size: sequence length)
         predictions = torch.softmax(logits, dim=-1)
-        flattened_predictions = predictions.view(-1, predictions.shape[-1])
+        entropy = -(predictions * torch.log(predictions + 0.00001)).sum(dim=-1)
 
-        # multiply the matrix by its transpose, two tokens that are the same will raise the similarity score
-        similarity = torch.matmul(flattened_predictions, flattened_predictions.T)
-
-        # need to only use the off diagonals, zero the diagonals
-        identity_matrix = torch.eye(similarity.shape[0]).to(logits.device)
-        repeat_loss = (similarity * (1 - identity_matrix)).mean()
-
-        return -target_probabilities.mean() + (repeat_loss * SIMILARITY_WEIGHT)
+        return -target_probabilities.mean() + (entropy.mean() * SIMILARITY_WEIGHT)
