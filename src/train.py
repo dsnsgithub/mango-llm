@@ -34,13 +34,14 @@ def train():
         start_time = time.perf_counter()
         total_loss = 0
         for step, (inputs, targets) in enumerate(loaded_dataset):
+            optimizer.zero_grad()  # reset parameter gradients across model
+
             logits: torch.Tensor = model(inputs[0])
 
             # compare the output from the model given the first token (input[0]) to the given story next token (targets[0])
             loss = loss_fn(logits, targets[0])
             total_loss += loss.item()
 
-            optimizer.zero_grad()  # reset parameter gradients across model
             loss.backward()  # calculate gradients using loss
             optimizer.step()  # updates parameters through the whole model
 
