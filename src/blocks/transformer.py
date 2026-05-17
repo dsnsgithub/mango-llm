@@ -2,7 +2,7 @@ import torch.nn as nn
 
 from blocks.attention import Attention
 from blocks.feedforward import FeedForward
-from constants import EMBEDDING_DIMENSIONS, HIDDEN_FEED_FORWARD_DIMENSIONS
+from constants import EMBEDDING_DIMENSIONS, HIDDEN_FEED_FORWARD_DIMENSIONS, NUMBER_OF_ATTENTION_HEADS
 
 
 class Transformer(nn.Module):
@@ -12,7 +12,7 @@ class Transformer(nn.Module):
         super().__init__()
         self.embedding_dimensions = embedding_dimensions
 
-        self.attention = Attention(embedding_dimensions=EMBEDDING_DIMENSIONS)
+        self.attention = Attention(embedding_dimensions=EMBEDDING_DIMENSIONS, num_heads=NUMBER_OF_ATTENTION_HEADS)
         self.feed_forward = FeedForward(
             embedding_dimensions=EMBEDDING_DIMENSIONS,
             hidden_dimensions=HIDDEN_FEED_FORWARD_DIMENSIONS,
