@@ -43,5 +43,5 @@ class Attention(nn.Module):
         # "this" [  1.0,    0.0  ]   ← how much "this" attends to each token
         # "was"  [  0.27,    0.73  ]   ← how much "was" attends to each token
 
-        # must use .reshape() instead of .transpose because reshape actually changes the underlying data instead of metadata
-        return torch.matmul(weights, V).reshape(0, 1).view(sequence_length, embedding_dimensions)
+        # must use .reshape() instead of .view() because reshape isn't reading raw bytes
+        return torch.matmul(weights, V).transpose(0, 1).reshape(sequence_length, embedding_dimensions)
