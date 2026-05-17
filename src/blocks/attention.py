@@ -28,6 +28,7 @@ class Attention(nn.Module):
         # .tranpose(-2, -1) allows Q to be multiplied by K (swap sequence_length, self.head_dimensions in K)
         scores_before_mask = torch.matmul(Q, K.transpose(-2, -1)) / math.sqrt(self.head_dimensions)
 
+        # zero out the upper triangular portion of the matrix (don't allow the model to cheat on future tokens during training)
         ones_matrix = torch.ones(sequence_length, sequence_length)
         mask = torch.triu(ones_matrix, diagonal=1).bool().to(x.device)
 
