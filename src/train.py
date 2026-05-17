@@ -33,7 +33,7 @@ def train():
     for epoch in range(1, EPOCH_COUNT + 1):
         start_time = time.perf_counter()
         total_loss = 0
-        for i, (inputs, targets) in enumerate(loaded_dataset):
+        for step, (inputs, targets) in enumerate(loaded_dataset):
             logits: torch.Tensor = model(inputs[0])
 
             # compare the output from the model given the first token (input[0]) to the given story next token (targets[0])
@@ -44,16 +44,16 @@ def train():
             loss.backward()  # calculate gradients using loss
             optimizer.step()  # updates parameters through the whole model
 
-            if i % DISPLAY_STEP_SIZE == 0:
-                print(f"Epoch {epoch} | Step {i}/{total_steps} | Loss: {loss.item()}")
+            if step % DISPLAY_STEP_SIZE == 0:
+                print(f"Epoch {epoch} | Step {step}/{total_steps} | Loss: {loss.item()}")
 
-            if i % SAVE_ON_STEP == 0 and i != 0:
+            if step % SAVE_ON_STEP == 0 and step != 0:
                 end_time = time.perf_counter()
                 time_taken = end_time - start_time
                 print(f"Time taken: {time_taken:.2f} seconds / {SAVE_ON_STEP} steps")
 
-                torch.save(model, f"dist/model-{pytorch_check.device}-{epoch}-{i}.pth")
-                print(f"Saved snapshot at: dist/model-{pytorch_check.device}-{epoch}-{i}.pth")
+                torch.save(model, f"dist/model-{pytorch_check.device}-{epoch}-{step}.pth")
+                print(f"Saved snapshot at: dist/model-{pytorch_check.device}-{epoch}-{step}.pth")
 
         average_loss = total_loss / total_steps
         end_time = time.perf_counter()
