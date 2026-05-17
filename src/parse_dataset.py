@@ -43,7 +43,7 @@ class StoryDataset(torch.utils.data.Dataset):
         story_tokens = self.tokenized_stories[index]
 
         # the model should output the token after given the input
-        input = story_tokens[:-1]  # everything except last token
-        expected = story_tokens[1:]  # everything after first token
+        input_tokens = story_tokens[:-1]  # everything except last token
+        expected_tokens = story_tokens[1:]  # everything after first token
 
-        return input, expected
+        return input_tokens, expected_tokens
