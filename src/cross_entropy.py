@@ -8,6 +8,8 @@ class CustomEntropyLoss(nn.Module):
         super().__init__()
     
     def forward(self, logits: torch.Tensor, targets: torch.Tensor):
+        mask_targets_padding = (targets >= 0)
+
         soft_maxed = torch.nn.functional.log_softmax(logits, dim=-1)
 
         # for each token, zero out the wrong answers

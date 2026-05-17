@@ -17,13 +17,13 @@ class Attention(nn.Module):
         self.W_v = nn.Parameter(torch.randn(embedding_dimensions, embedding_dimensions))
 
     def forward(self, x: torch.Tensor):
-        sequence_length, embedding_dimensions = x.size()
+        batch_size, sequence_length, embedding_dimensions = x.size()
     
         # create the matrix Q, split it into multiple heads of (sequence_length, self.embedding_dimensions / self.head_dimensions)
-        # then transpose the first and second dimension, so that it becomes (num_heads, sequence_length, self.embedding_dimensions / self.head_dimensions)
-        Q = torch.matmul(x, self.W_q).view(sequence_length, self.num_heads, self.head_dimensions).transpose(0, 1)
-        K = torch.matmul(x, self.W_k).view(sequence_length, self.num_heads, self.head_dimensions).transpose(0, 1)
-        V = torch.matmul(x, self.W_v).view(sequence_length, self.num_heads, self.head_dimensions).transpose(0, 1)
+        # then transpose the second and third dimension, so that it becomes (batch_size, num_heads, sequence_length, self.embedding_dimensions / self.head_dimensions)
+        Q = torch.matmul(x, self.W_q).view(batch_size, sequence_length, self.num_heads, self.head_dimensions).transpose(1, 2)
+        K = torch.matmul(x, self.W_k).view(batch_size, sequence_length, self.num_heads, self.head_dimensions).transpose(1, 2)
+        V = torch.matmul(x, self.W_v).view(batch_size, sequence_length, self.num_heads, self.head_dimensions).transpose(1, 2)
         
         # .tranpose(-2, -1) allows Q to be multiplied by K (swap sequence_length, self.head_dimensions in K)
         scores_before_mask = torch.matmul(Q, K.transpose(-2, -1)) / math.sqrt(self.head_dimensions)
@@ -44,4 +44,4 @@ class Attention(nn.Module):
         # "was"  [  0.27,    0.73  ]   ← how much "was" attends to each token
 
         # must use .reshape() instead of .view() because reshape isn't reading raw bytes
-        return torch.matmul(weights, V).transpose(0, 1).reshape(sequence_length, embedding_dimensions)
+        return torch.matmul(weights, V).transpose(1, 2).reshape(sequence_length, embedding_dimensions)

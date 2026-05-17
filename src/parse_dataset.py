@@ -6,6 +6,9 @@ import torch
 import pytorch_check
 from constants import TOTAL_DATASET_ELEMENTS
 
+from torch.nn.utils.rnn import pad_sequence
+
+
 raw_dataset = pd.read_csv("./dataset/TinyStories/train.csv")["text"].astype(str)
 raw_dataset = raw_dataset[raw_dataset.str.len() >= 200]
 dataset = raw_dataset[:TOTAL_DATASET_ELEMENTS] if TOTAL_DATASET_ELEMENTS else raw_dataset
@@ -30,6 +33,15 @@ def string_to_token_ids(string: str):
         device=pytorch_check.device
     )
 
+def collate_fn(batch):
+    inputs, targets = zip(*batch)
+
+    # for inputs, the padding_value doesn't matter, since it will evaluate to -1 in the loss and be ignored.
+    inputs_padded = pad_sequence(inputs, batch_first=True, padding_value=0)
+    targets_padded = pad_sequence(targets, batch_first=True, padding_value=-1)
+
+    return inputs_padded, targets_padded
+
 
 class StoryDataset(torch.utils.data.Dataset):
     def __init__(self):
@@ -43,7 +55,8 @@ class StoryDataset(torch.utils.data.Dataset):
         story_tokens = self.tokenized_stories[index]
 
         # the model should output the token after given the input
-        input = story_tokens[:-1]  # everything except last token
-        expected = story_tokens[1:]  # everything after first token
+        # add [:, ] because it is for each batch
+        input_tokens = story_tokens[:, :-1]  # everything except last token
+        expected_tokens = story_tokens[:, 1:]  # everything after first token
 
-        return input, expected
+        return input_tokens, expected_tokens
